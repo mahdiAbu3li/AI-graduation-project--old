@@ -13,7 +13,7 @@ import re
 import random
 
 
-class ObjectTree:
+class TextTree:
     """
 		Description:
 		-----------
@@ -24,8 +24,8 @@ class ObjectTree:
 
 		Example use:
 		-----------
-			>> connector = ObjectTree(label_column='label')
-			>> connector.read(object_map_df, img)
+			>> connector = TextTree(label_column='label')
+			>> connector.read(Text_map_df, img)
 			>> df, obj_list = connector.connect(plot=False, export_df=False)
 	"""
 
@@ -35,15 +35,15 @@ class ObjectTree:
         self.img = None
         self.file_name = None
 
-    def read(self, object_map, image, save_name):
+    def read(self, Text_map, image, save_name):
 
         '''
 			Function to ensure the data is in correct format and saves the 
 			dataframe and image as class properties
 
 			Args:
-				object_map: pd.DataFrame, having coordinates of bounding boxes,
-										  text object and label
+				Text_map: pd.DataFrame, having coordinates of bounding boxes,
+										  text Text and label
 				
 				image: np.array, black and white cv2 image
 
@@ -52,29 +52,29 @@ class ObjectTree:
 
 		'''
 
-        assert type(object_map) == pd.DataFrame, f'object_map should be of type \
-			{pd.DataFrame}. Received {type(object_map)}'
+        assert type(Text_map) == pd.DataFrame, f'Text_map should be of type \
+			{pd.DataFrame}. Received {type(Text_map)}'
         assert type(image) == np.ndarray, f'image should be of type {np.ndarray} \
 			. Received {type(image)}'
 
-        assert 'xmin' in object_map.columns, '"xmin" not in object map'
-        assert 'xmax' in object_map.columns, '"xmax" not in object map'
-        assert 'ymin' in object_map.columns, '"ymin" not in object map'
-        assert 'ymax' in object_map.columns, '"ymax" not in object map'
-        assert 'Text' in object_map.columns, '"Object" column not in object map'
-        assert self.label_column in object_map.columns, \
-            f'"{self.label_column}" does not exist in the object map'
+        assert 'xmin' in Text_map.columns, '"xmin" not in Text map'
+        assert 'xmax' in Text_map.columns, '"xmax" not in Text map'
+        assert 'ymin' in Text_map.columns, '"ymin" not in Text map'
+        assert 'ymax' in Text_map.columns, '"ymax" not in Text map'
+        assert 'Text' in Text_map.columns, '"Text" column not in Text map'
+        assert self.label_column in Text_map.columns, \
+            f'"{self.label_column}" does not exist in the Text map'
 
         # check if image is greyscale
         assert image.ndim == 2, 'Check if the read image is greyscale.'
 
         # drop unneeded columns
-        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'Object',
+        required_cols = {'xmin', 'xmax', 'ymin', 'ymax', 'Text',
                          self.label_column}
-        un_required_cols = set(object_map.columns) - required_cols
-        object_map.drop(columns=un_required_cols, inplace=True)
+        un_required_cols = set(Text_map.columns) - required_cols
+        Text_map.drop(columns=un_required_cols, inplace=True)
 
-        self.df = object_map
+        self.df = Text_map
         self.img = image
         self.file_name = save_name
         return
@@ -99,13 +99,13 @@ class ObjectTree:
 		'''
         df, img = self.df, self.img
 
-        # check if object map was successfully read by .read() method
+        # check if Text map was successfully read by .read() method
         try:
             if len(df) == 0:
                 return
         except:
             return
-
+        # print(df , "df mama")
         # initialize empty df to store plotting coordinates
         df_plot = pd.DataFrame()
 
@@ -138,10 +138,10 @@ class ObjectTree:
 
             dest_attr_hori = []
 
-            ################ iterate over destination objects #################
+            ################ iterate over destination Texts #################
             # 遍历目标块
             for dest_idx, dest_row in df.iterrows():
-                # flag to signal whether the destination object is below source
+                # flag to signal whether the destination Text is below source
                 # 1 先判断当前目标文字块是不是属于下方
                 # is_beneath = False
                 if not src_idx == dest_idx:  # 排除自己和自己作比较
@@ -152,7 +152,7 @@ class ObjectTree:
 
                     height = dest_center_y - src_center_y
 
-                    # consider only the cases where destination object lies
+                    # consider only the cases where destination Text lies
                     # below source
                     if dest_center_y > src_center_y:
                         # check if horizontal range of dest lies within range of source
@@ -229,7 +229,7 @@ class ObjectTree:
                         else:
                             length = 0
 
-                        # consider only the cases where the destination object
+                        # consider only the cases where the destination Text
                         # lies to the right of source
                         # if dest_center_x > src_center_x:
                         if dest_center_x > src_center_x + (dest_row['xmax'] - src_row['xmin']) / 2:
@@ -310,10 +310,10 @@ class ObjectTree:
 
             '''if len(dest_attr_vert_sorted) > 0:
 				for i in dest_attr_vert_sorted:
-					print(src_row['Object'], "@@",df['Object'][i[0]])
+					print(src_row['Text'], "@@",df['Text'][i[0]])
 				print(len(dest_attr_vert_sorted),dest_attr_vert_sorted)
 				print(nearest_dest_ids_vert[-1])
-				print(df['Object'][nearest_dest_ids_vert[-1]])'''
+				print(df['Text'][nearest_dest_ids_vert[-1]])'''
 
             # ========================== horizontal ========================= #
             if len(dest_attr_hori_sorted) == 0:
@@ -359,10 +359,10 @@ class ObjectTree:
 
             '''if len(dest_attr_hori_sorted) > 0:
 				for i in dest_attr_hori_sorted:
-					print(src_row['Object'], "@@", df['Object'][i[0]])
+					print(src_row['Text'], "@@", df['Text'][i[0]])
 				print(len(dest_attr_hori_sorted),dest_attr_hori_sorted)
 				print(nearest_dest_ids_hori[-1])
-				print(df['Object'][nearest_dest_ids_hori[-1]])
+				print(df['Text'][nearest_dest_ids_hori[-1]])
 			print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")'''
 
         # print(len(nearest_dest_ids_vert))
@@ -372,13 +372,13 @@ class ObjectTree:
 
         # ==================== vertical ===================================== #
         # create df for plotting lines
-        # df['below_object'] = df.loc[nearest_dest_ids_vert, 'Object'].values
-        df['below_object'] = df.reindex(nearest_dest_ids_vert, columns=['Object']).values  # 索引值为-1的地方为NaN
+        # df['below_Text'] = df.loc[nearest_dest_ids_vert, 'Text'].values
+        df['below_Text'] = df.reindex(nearest_dest_ids_vert, columns=['Text']).values  # 索引值为-1的地方为NaN
 
         # add distances column
         df['below_dist'] = distances
 
-        # add column containing index of destination object
+        # add column containing index of destination Text
         df['below_obj_index'] = nearest_dest_ids_vert
 
         # add coordinates for plotting
@@ -391,13 +391,13 @@ class ObjectTree:
 
         # ==================== horizontal =================================== #
         # create df for plotting lines
-        # df['side_object'] = df.loc[nearest_dest_ids_hori, 'Object'].values
-        df['side_object'] = df.reindex(nearest_dest_ids_hori, columns=['Object']).values
+        # df['side_Text'] = df.loc[nearest_dest_ids_hori, 'Text'].values
+        df['side_Text'] = df.reindex(nearest_dest_ids_hori, columns=['Text']).values
 
         # add lengths column
         df['side_length'] = lengths
 
-        # add column containing index of destination object
+        # add column containing index of destination Text
         df['side_obj_index'] = nearest_dest_ids_hori
 
         # add coordinates for plotting
@@ -410,23 +410,23 @@ class ObjectTree:
 
         df_merged = pd.concat([df, df_plot], axis=1)
 
-        # if an object has more than one parent above it, only the connection
+        # if an Text has more than one parent above it, only the connection
         # with the smallest distance is retained and the other distances are
-        # replaced by '-1' to get such objects, group by 'below_object' column
+        # replaced by '-1' to get such Texts, group by 'below_Text' column
         # and use minimum of 'below_dist'
         #  下面的操作是为了：
         #   当一个文字块有多个垂直连接时，只保留距离最短的一个连接；同理水平方向也是。
         # ======================= vertical ================================== #
         groups_vert = df_merged.groupby('below_obj_index')['below_dist'].min()
         # 用below_obj_index分组，最后取below_dist,再取该列分组中的最小值的行
-        # groups.index gives a list of the below_object text and groups.values
+        # groups.index gives a list of the below_Text text and groups.values
         # gives the corresponding minimum distance
         # print(groups_vert) # 索引是组名（below_obj_index），值是距离
         groups_dict_vert = dict(zip(groups_vert.index, groups_vert.values))
 
         # ======================= horizontal ================================ #
         groups_hori = df_merged.groupby('side_obj_index')['side_length'].min()
-        # groups.index gives a list of the below_object text and groups.values
+        # groups.index gives a list of the below_Text text and groups.values
         # gives the corresponding minimum distance
         groups_dict_hori = dict(zip(groups_hori.index, groups_hori.values))
 
@@ -537,7 +537,7 @@ class ObjectTree:
                     './grapher_outputs/plots_604/' + 'graph_' + str(self.file_name) + '.jpg'
                 cv2.imwrite(PLOT_PATH, img)
 
-        # export dataframe with destination objects to csv in same folder
+        # export dataframe with destination Texts to csv in same folder
         if export_df == True:
 
             # make folder to store output
@@ -578,13 +578,14 @@ class ObjectTree:
             for dst in v:
                 graph_items.append(dst)
         alone_nodes = list(set(all_items) - set(graph_items))
-        content_lst = df['Object'].tolist()
+        content_lst = df['Text'].tolist()
+        # print(df, "Dddd")
         label_lst = df['label'].tolist()
         if alone_nodes != []:
             content_lst = [content_lst[i] for i in range(len(content_lst)) if i not in alone_nodes]
             label_lst = [label_lst[i] for i in range(len(label_lst)) if i not in alone_nodes]
 
-        # return graph_dict, df['Object'].tolist(),  df['label'].tolist(), alone_nodes
+        # return graph_dict, df['Text'].tolist(),  df['label'].tolist(), alone_nodes
         return graph_dict, content_lst, label_lst, alone_nodes
 
 
@@ -664,11 +665,12 @@ class Graph:
                     pass
 
         features = []
+
         features.append([n_lower / lenth, n_upper / lenth, n_spaces, n_alpha / lenth, n_numeric / lenth, n_digits])
         features = np.array(features)
         features = np.append(features, np.array(special_chars_arr))
-        vec_arr = code_sentence._generate_txt_vec(data)
-        features = np.append(features, vec_arr)
+        # vec_arr = code_sentence._generate_txt_vec(data)
+        # features = np.append(features, vec_arr)
 
         return features
 
@@ -676,7 +678,7 @@ class Graph:
         # label_classes = ['buyer_name', 'seller_name', 'document_date','invoice_no','contract_no',
         # 				 'payment_terms','amount_currency', 'currency', 'amount', 'o']
         # label_classes = ['COMPANY','ADDRESS','DATE','TOTAL','O']
-        label_classes = ['company', 'address', 'date', 'total', 'other']
+        label_classes = ['address', 'phone', 'total', 'o']
         if self.resize:
             label_classes.append('virtual')
         mlb = MultiLabelBinarizer(classes=label_classes)
@@ -760,11 +762,11 @@ class Graph:
 
     def make_graph_data(self, graph_dict, text_list, label_list):
         # '''
-        # 	Function to make an adjacency matrix from a networkx graph object
+        # 	Function to make an adjacency matrix from a networkx graph Text
         # 	as well as padded feature matrix
         #
         # 	Args:
-        # 		G: networkx graph object
+        # 		G: networkx graph Text
         #
         # 		text_list: list,
         # 					of text entities:
@@ -791,14 +793,15 @@ class Graph:
         # preprocess the list of text entities
         # 节点初始向量表示生成模块，每个节点维度要一致，即句子编码长度相同，
         # 后期可以要改成句子的词典one-hot表达或者其他句子级别的词向量，统一长度，作为节点初始输入
-        # feat_list = list(map(self._get_text_features, text_list))
-        feat_list = list(map(self._map_sentence_to_list, text_list))
+        feat_list = list(map(self._get_text_features, text_list))
+        # print(text_list, "text list ,a,a,")
+        # feat_list = list(map(self._map_sentence_to_list, text_list))
         # for i in range(len(text_list)):
         #     print(text_list[i])
         #     print(code_sentence.seg_sentence(text_list[i])[0])
         #     print(feat_list[i] , len(feat_list[i]))
         # exit()
-        feat_arr = np.array(feat_list)
+        feat_arr = np.array(feat_list,dtype=object)
         # print(feat_arr)
 
         # print(len(feat_arr),feat_arr)
@@ -838,15 +841,23 @@ if __name__ == "__main__":
         pass
 
 
+    c = 0;
     for file in os.listdir(csv_dir):
+        if c > 0: break
+        c += 1
         csv_file = os.path.join(csv_dir, file)
         img_file = os.path.join(img_dir, file[:-4] + ".jpg")
         file_prefix = os.path.basename(csv_file)[:-4]
+        print("csv_file", csv_file)
+        print("file_prefix", file_prefix)
         df = pd.read_csv(csv_file)
+        pd.set_option("display.max_rows", None, "display.max_columns", None)
+
+        print(df, "df main")
         img = cv2.imread(img_file, 0)
-        tree = ObjectTree()
+        tree = TextTree()
         tree.read(df, img, file_prefix)
-        graph_dict, text_list, label_list, lost_nodes = tree.connect(plot=True, export_df=False)
+        graph_dict, text_list, label_list, lost_nodes = tree.connect(plot=True, export_df=True)
 
         print(graph_dict)
         print(text_list)
@@ -858,6 +869,7 @@ if __name__ == "__main__":
         # resize arg is used for pading adj-matrix and numbers of span to fixed same lenth.
         graph = Graph(max_nodes=50, resize=False)
         A, X, L = graph.make_graph_data(graph_dict, text_list, label_list)
+        print(L)
         # csr_matrix / ndarray / ndarray
         scipy.sparse.save_npz(os.path.join(matrix_dir, file[:-4] + "_adj.npz"), A)
         np.save(os.path.join(matrix_dir, file[:-4] + "_feature.npy"), X)
@@ -867,4 +879,4 @@ if __name__ == "__main__":
         if A.A.shape[0] != len(X):
             error_list.append(file)
 
-    print(error_list)
+    print(error_list, "err")

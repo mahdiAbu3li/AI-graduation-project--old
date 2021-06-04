@@ -24,9 +24,9 @@ for j in range(len(images)):
     path = "data/train_images/c" + str(j) + ".jpg"
     df = process_text_analysis(path)
 
-    r = ["", 0, 0, 0, 0, ""]
-    new_df = pd.DataFrame([r], columns=["ID", "xmin", "ymin", "xmax", "ymax", "Text"])
-
+    r = ["", 0, 0, 0, 0, "", "o"]
+    new_df = pd.DataFrame([r], columns=["ID", "xmin", "ymin", "xmax", "ymax", "Text", "label"])
+    label = "o"
     text = ""
     xmin = 0
     xmax = 0
@@ -57,7 +57,7 @@ for j in range(len(images)):
         else:
             xmax = df.loc[i, "xmax"]
             new_df.loc[len(new_df.index)] = [df.loc[i, "ID"], xmin, ymin, xmax,
-                                             ymax, text]
+                                             ymax, text, label]
             draw = ImageDraw.Draw(image)
 
             left = imgWidth * xmin
@@ -71,7 +71,7 @@ for j in range(len(images)):
 
     text += (str)(df.loc[i + 1, "Text"])
     xmax = df.loc[i + 1, "xmax"]
-    new_df.loc[len(new_df.index)] = [df.loc[i, "ID"], xmin, ymin, xmax, ymax, text]
+    new_df.loc[len(new_df.index)] = [df.loc[i, "ID"], xmin, ymin, xmax, ymax, text, label]
 
     left = imgWidth * xmin
     top = imgHeight * ymin

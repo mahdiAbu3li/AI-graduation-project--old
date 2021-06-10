@@ -599,9 +599,10 @@ class Graph:
         return
 
     def _get_text_features(self, data):
-
+        # print(data)
         assert type(data) == str, f'Expected type {str}. Received {type(data)}.'
         lenth = len(data)
+
         n_upper = 0
         n_lower = 0
         n_alpha = 0
@@ -671,14 +672,14 @@ class Graph:
         features = np.append(features, np.array(special_chars_arr))
         # vec_arr = code_sentence._generate_txt_vec(data)
         # features = np.append(features, vec_arr)
-
+        print(features)
         return features
 
     def _get_text_labels(self, data):
         # label_classes = ['buyer_name', 'seller_name', 'document_date','invoice_no','contract_no',
         # 				 'payment_terms','amount_currency', 'currency', 'amount', 'o']
         # label_classes = ['COMPANY','ADDRESS','DATE','TOTAL','O']
-        label_classes = ['address', 'phone', 'total', 'o']
+        label_classes = ['name', 'phone', 'total', 'o']
         if self.resize:
             label_classes.append('virtual')
         mlb = MultiLabelBinarizer(classes=label_classes)
@@ -687,6 +688,7 @@ class Graph:
         return la[0]
 
     def _pad_adj(self, adj):
+        print("asssssssssssssssssssssssssssssssssssssssssss")
         '''
             This method resizes the input Adjacency matrix to shape
             (self.max_nodes, self.max_nodes)
@@ -719,6 +721,7 @@ class Graph:
         return target
 
     def _pad_text_features(self, feat_arr):
+
         '''
             This method pads the feature matrix to size
             (self.max_nodes, feat_arr.shape[1])
@@ -794,6 +797,7 @@ class Graph:
         # 节点初始向量表示生成模块，每个节点维度要一致，即句子编码长度相同，
         # 后期可以要改成句子的词典one-hot表达或者其他句子级别的词向量，统一长度，作为节点初始输入
         feat_list = list(map(self._get_text_features, text_list))
+        # print(feat_list, "fm")
         # print(text_list, "text list ,a,a,")
         # feat_list = list(map(self._map_sentence_to_list, text_list))
         # for i in range(len(text_list)):
@@ -801,7 +805,8 @@ class Graph:
         #     print(code_sentence.seg_sentence(text_list[i])[0])
         #     print(feat_list[i] , len(feat_list[i]))
         # exit()
-        feat_arr = np.array(feat_list,dtype=object)
+        feat_arr = np.array(feat_list,dtype=float)
+        # print(feat_list, "fmmm")
         # print(feat_arr)
 
         # print(len(feat_arr),feat_arr)
@@ -810,12 +815,17 @@ class Graph:
             # print(feat_arr.dtype) # float64
         # preprocess the list of text labels
         la_list = list(map(self._get_text_labels, label_list))
+
+
+
         la_arr = np.array(la_list)
+        # print("this is label list")
         # print(len(la_arr), la_arr)
         if self.resize:
             la_arr = self._pad_text_labels(la_arr)
             # print(la_arr.dtype) #int32
-
+        # print("after")
+        # print(la_arr)
         # return adj_sparse, scipy.sparse.csr_matrix(feat_arr), la_arr
         return adj_sparse, feat_arr, la_arr
 
@@ -826,10 +836,16 @@ if __name__ == "__main__":
 
     # csv_dir = "./data/sroie_604_csv"
     csv_dir = "./data/train_csv"
+    # test_csv
+    # train_csv
     # csv_dir = "./data/sroie_347_csv"
     img_dir = "./data/train_images"
+    # test_images
+    # train_images
     # img_dir = "./data/sroie_test_images"
-    matrix_dir = "./data/matrix_data_sroie_604_new_format"
+    matrix_dir = "./data/matrix_data_train"
+    # matrix_data_test
+    # matrix_data_train
     # matrix_dir = "./data/matrix_data_sroie_347_new_format"
 
     if not os.path.exists(matrix_dir):
@@ -843,33 +859,35 @@ if __name__ == "__main__":
 
     c = 0;
     for file in os.listdir(csv_dir):
-        if c > 0: break
-        c += 1
+        # if c > 0: break
+        # c += 1
         csv_file = os.path.join(csv_dir, file)
         img_file = os.path.join(img_dir, file[:-4] + ".jpg")
         file_prefix = os.path.basename(csv_file)[:-4]
-        print("csv_file", csv_file)
-        print("file_prefix", file_prefix)
+        # print("csv_file", csv_file)
+        # print("file_prefix", file_prefix)
         df = pd.read_csv(csv_file)
         pd.set_option("display.max_rows", None, "display.max_columns", None)
 
-        print(df, "df main")
+        # print(df, "df main")
         img = cv2.imread(img_file, 0)
         tree = TextTree()
         tree.read(df, img, file_prefix)
         graph_dict, text_list, label_list, lost_nodes = tree.connect(plot=True, export_df=True)
 
-        print(graph_dict)
-        print(text_list)
-        print(label_list)
-        print(lost_nodes)
+        # print(graph_dict)
+        # print(text_list)
+        # print(label_list)
+        # print(lost_nodes)
 
         print('\n--------------------------------------------------------------\n')
 
         # resize arg is used for pading adj-matrix and numbers of span to fixed same lenth.
         graph = Graph(max_nodes=50, resize=False)
         A, X, L = graph.make_graph_data(graph_dict, text_list, label_list)
-        print(L)
+
+
+        # print(X, "xxxxxx")
         # csr_matrix / ndarray / ndarray
         scipy.sparse.save_npz(os.path.join(matrix_dir, file[:-4] + "_adj.npz"), A)
         np.save(os.path.join(matrix_dir, file[:-4] + "_feature.npy"), X)

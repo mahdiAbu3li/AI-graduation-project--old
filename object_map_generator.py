@@ -15,13 +15,13 @@ def load_images_from_folder(folder):
     return images
 
 
-images = load_images_from_folder("data/train_images")
+images = load_images_from_folder("data/test_images")
 
 # df = pd.read_csv("image/4.csv")
 
 for j in range(len(images)):
 
-    path = "data/train_images/c" + str(j) + ".jpg"
+    path = "data/test_images/c" + str(j) + ".jpg"
     df = process_text_analysis(path)
 
     r = ["", 0, 0, 0, 0, "", "o"]
@@ -81,4 +81,4 @@ for j in range(len(images)):
     image.show()
     print(j)
     image.save("data/box_images/c"+str(j) + ".jpg")
-    new_df.to_csv("data/train_csv/c"+str(j) + ".csv")
+    new_df.to_csv("data/test_csv/c"+str(j) + ".csv")

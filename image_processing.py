@@ -298,7 +298,7 @@ def load_images_from_folder(folder):
             images.append(img)
     return images
 
-images = load_images_from_folder("data/input2")
+images = load_images_from_folder("data/input_test_images")
 
 for i in range(len(images)):
     # cv2.imshow("no_shadows", images[i])
@@ -327,7 +327,7 @@ for i in range(len(images)):
 
     # getting the binarized image
     otsu = get_otsu(gray)
-    path = "data/train_images/c"+str(i)+".jpg"
+    path = "data/test_images/c"+str(i)+".jpg"
     # # print(path)
     cv2.imwrite( path , otsu )
     # imgplot = plt.imshow(otsu , cmap="gray")

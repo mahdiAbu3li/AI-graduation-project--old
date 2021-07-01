@@ -1,2 +1,4 @@
 # AI-graduation-project
-this is old algorithim to gcn  
+
+
+This is old algorithim to gcn and it contains image processing and object map  
